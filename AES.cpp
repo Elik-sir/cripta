@@ -48,7 +48,6 @@ unsigned char *AES::DecryptCBC(const unsigned char in[], unsigned int inLen,
                                const unsigned char key[],
                                const unsigned char *iv)
 {
-    CheckLength(inLen);
     unsigned char *out = new unsigned char[inLen];
     unsigned char block[blockBytesLen];
     unsigned char *roundKeys = new unsigned char[4 * Nb * (Nr + 1)];
@@ -66,24 +65,6 @@ unsigned char *AES::DecryptCBC(const unsigned char in[], unsigned int inLen,
     return out;
 }
 
-void AES::CheckLength(unsigned int len)
-{
-    if (len % blockBytesLen != 0)
-    {
-        throw std::length_error("Plaintext length must be divisible by " +
-                                std::to_string(blockBytesLen));
-    }
-}
-void AES::CheckLength(unsigned int len, unsigned char in[])
-{
-    if (len % blockBytesLen != 0)
-    {
-        int newLength = len + (blockBytesLen - len % blockBytesLen);
-        cout << in[0];
-        in = (unsigned char *)realloc(in, newLength * sizeof(char));
-        cout << in[0];
-    }
-}
 void AES::EncryptBlock(const unsigned char in[], unsigned char out[],
                        unsigned char *roundKeys)
 {
@@ -447,6 +428,10 @@ std::vector<unsigned char> AES::DecryptCBC(std::vector<unsigned char> in,
                                     VectorToArray(key), VectorToArray(iv));
     std::vector<unsigned char> v = ArrayToVector(out, (unsigned int)in.size());
     delete[] out;
+    while (v.back() == '\0')
+    {
+        v.pop_back();
+    }
     return v;
 }
 
@@ -483,7 +468,6 @@ std::string AES::fileFromBytes(const std::string &outputFilePath, std::vector<un
     {
         file.write(reinterpret_cast<const char *>(combinedBytes.data()), combinedBytes.size());
         file.close();
-        std::cout << outputFilePath << std::endl;
         return outputFilePath;
     }
     else

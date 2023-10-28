@@ -50,9 +50,6 @@ private:
 
     void InvShiftRows(unsigned char state[4][Nb]);
 
-    void CheckLength(unsigned int len, unsigned char *in);
-    void CheckLength(unsigned int len);
-
     void KeyExpansion(const unsigned char key[], unsigned char w[]);
 
     void EncryptBlock(const unsigned char in[], unsigned char out[],
