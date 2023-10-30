@@ -54,6 +54,10 @@ void cipherImage(std::vector<unsigned char> key)
     AES aes(AESKeyLength::AES_256);
     std::vector<unsigned char> in = aes.bytesFromImage("input.bmp");
     std::vector<unsigned char> out = aes.EncryptCBC(in, key, iv);
+    for (int i = 0; i < 9000; ++i)
+    {
+        out[i] = 0x0;
+    }
     aes.fileFromBytes("output.bmp", out);
 }
 
@@ -86,10 +90,10 @@ int main()
     std::vector<unsigned char> key = getRandomKey();
     cout << "Generated key: " << key.data() << endl;
     AES aes(AESKeyLength::AES_256);
-    // cipherImage(key);
-    // decipherImage(key);
-    cipherText(key);
-    decipherText(key);
+    cipherImage(key);
+    decipherImage(key);
+    // cipherText(key);
+    // decipherText(key);
 
     return 0;
 }
