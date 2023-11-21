@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cstdint>
 using namespace std;
 AES::AES(const AESKeyLength keyLength)
 {
@@ -154,7 +155,7 @@ void AES::SubBytes(unsigned char state[4][Nb])
 }
 
 void AES::ShiftRow(unsigned char state[4][Nb], unsigned int i,
-                   unsigned int n) // shift row i on n positions
+                   unsigned int n)
 {
     unsigned char tmp[Nb];
     for (unsigned int j = 0; j < Nb; j++)
@@ -182,25 +183,21 @@ void mixSingleColumn(unsigned char *r)
     unsigned char b[4];
     unsigned char c;
     unsigned char h;
-    /* The array 'a' is simply a copy of the input array 'r'
-     * The array 'b' is each element of the array 'a' multiplied by 2
-     * in Rijndael's Galois field
-     * a[n] ^ b[n] is element n multiplied by 3 in Rijndael's Galois field */
+
     for (c = 0; c < 4; c++)
     {
         a[c] = r[c];
-        /* h is 0xff if the high bit of r[c] is set, 0 otherwise */
-        h = (unsigned char)((signed char)r[c] >> 7); /* arithmetic right shift, thus shifting in either zeros or ones */
-        b[c] = r[c] << 1;                            /* implicitly removes high bit because b[c] is an 8-bit char, so we xor by 0x1b and not 0x11b in the next line */
-        b[c] ^= 0x1B & h;                            /* Rijndael's Galois field */
+
+        h = (unsigned char)((signed char)r[c] >> 7);
+        b[c] = r[c] << 1;
+        b[c] ^= 0x1B & h;
     }
-    r[0] = b[0] ^ a[3] ^ a[2] ^ b[1] ^ a[1]; /* 2 * a0 + a3 + a2 + 3 * a1 */
-    r[1] = b[1] ^ a[0] ^ a[3] ^ b[2] ^ a[2]; /* 2 * a1 + a0 + a3 + 3 * a2 */
-    r[2] = b[2] ^ a[1] ^ a[0] ^ b[3] ^ a[3]; /* 2 * a2 + a1 + a0 + 3 * a3 */
-    r[3] = b[3] ^ a[2] ^ a[1] ^ b[0] ^ a[0]; /* 2 * a3 + a2 + a1 + 3 * a0 */
+    r[0] = b[0] ^ a[3] ^ a[2] ^ b[1] ^ a[1];
+    r[1] = b[1] ^ a[0] ^ a[3] ^ b[2] ^ a[2];
+    r[2] = b[2] ^ a[1] ^ a[0] ^ b[3] ^ a[3];
+    r[3] = b[3] ^ a[2] ^ a[1] ^ b[0] ^ a[0];
 }
 
-/* Performs the mix columns step. Theory from: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#The_MixColumns_step */
 void AES::MixColumns(unsigned char state[4][Nb])
 {
     unsigned char *temp = new unsigned char[4];
@@ -209,12 +206,12 @@ void AES::MixColumns(unsigned char state[4][Nb])
     {
         for (int j = 0; j < 4; ++j)
         {
-            temp[j] = state[j][i]; // place the current state column in temp
+            temp[j] = state[j][i];
         }
-        mixSingleColumn(temp); // mix it using the wiki implementation
+        mixSingleColumn(temp);
         for (int j = 0; j < 4; ++j)
         {
-            state[j][i] = temp[j]; // when the column is mixed, place it back into the state
+            state[j][i] = temp[j];
         }
     }
     delete temp;
